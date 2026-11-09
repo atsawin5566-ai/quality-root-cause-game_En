@@ -1,0 +1,1892 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
+
+<title>Stock Pro V3.1</title>
+
+<style>
+
+body{
+    margin:0;
+    font-family:Arial,sans-serif;
+    background:#f4f6f8;
+}
+
+.header{
+    background:#ffffff;
+    border-bottom:4px solid #5b4df5;
+    padding:15px 20px;
+}
+
+.header h1{
+    margin:0;
+    color:#333;
+}
+
+.container{
+    padding:20px;
+}
+
+.card{
+    background:white;
+    border-radius:10px;
+    padding:15px;
+    margin-bottom:15px;
+    box-shadow:0 2px 5px rgba(0,0,0,.1);
+}
+      
+.table-container{
+
+    display:flex;
+
+    gap:20px;
+
+    align-items:flex-start;
+
+}
+
+/* ตารางสต๊อก */
+
+.stock-card{
+
+    flex:3;
+
+}
+
+/* ตารางประวัติ */
+
+.history-card{
+
+    flex:2;
+
+    overflow-x:auto;
+
+}
+
+/* ตารางประวัติไม่ให้ตกบรรทัด */
+
+.history-card table{
+
+    width:100%;
+
+}
+
+.history-card th,
+.history-card td{
+
+    white-space:nowrap;
+
+    text-align:center;
+
+    padding:8px;
+
+}
+
+/* No. */
+
+.history-card th:nth-child(1),
+.history-card td:nth-child(1){
+    width:50px;
+}
+
+/* Date */
+
+.history-card th:nth-child(2),
+.history-card td:nth-child(2){
+    width:170px;
+}
+
+/* Type */
+
+.history-card th:nth-child(3),
+.history-card td:nth-child(3){
+    width:120px;
+}
+
+/* PN */
+
+.history-card th:nth-child(4),
+.history-card td:nth-child(4){
+    width:80px;
+}
+
+/* Lot */
+
+.history-card th:nth-child(5),
+.history-card td:nth-child(5){
+    width:100px;
+}
+
+/* Qty */
+
+.history-card th:nth-child(6),
+.history-card td:nth-child(6){
+    width:70px;
+}
+
+/* User */
+
+.history-card th:nth-child(7),
+.history-card td:nth-child(7){
+    width:100px;
+}
+
+/* Action */
+
+.history-card th:nth-child(8),
+.history-card td:nth-child(8){
+    width:80px;
+}
+
+input,
+select{
+    padding:8px;
+    margin:5px;
+    border:1px solid #ddd;
+    border-radius:5px;
+    box-sizing:border-box;
+}
+
+button{
+    padding:8px 12px;
+    cursor:pointer;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th,
+td{
+    border:1px solid #ddd;
+    padding:8px;
+    text-align:center;
+}
+
+th{
+    background:#5b4df5;
+    color:white;
+}
+
+.hidden{
+    display:none;
+}
+
+.dashboard{
+    display:flex;
+    gap:15px;
+    flex-wrap:wrap;
+}
+
+.box{
+    background:#ffffff;
+    padding:15px;
+    border-radius:10px;
+    min-width:180px;
+    text-align:center;
+    box-shadow:0 2px 5px rgba(0,0,0,.1);
+}
+
+.normal{
+    border-left:5px solid green;
+}
+
+.warning{
+    border-left:5px solid orange;
+}
+
+.expired{
+    border-left:5px solid red;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header class="header">
+
+<h1>
+   Solstice Advanced Materials
+</h1>
+
+<p>
+    Stock Location & Shelf Life Management System V3.1
+</p>
+
+</header>
+
+<div class="container">
+
+<!-- LOGIN -->
+
+<div id="loginSection">
+
+    <div class="card">
+
+        <h2>Login</h2>
+
+        <input
+            id="username"
+            placeholder="Username"
+        >
+
+        <input
+            id="password"
+            type="password"
+            placeholder="Password"
+        >
+
+        <button onclick="login()">
+            Login
+        </button>
+
+        <hr>
+<!--
+        <p>
+            Admin : admin / admin123
+        </p>
+
+        <p>
+            Supervisor : supervisor / sup123
+        </p>
+
+        <p>
+            User : user / user123
+        </p>
+-->
+    </div>
+
+</div>
+
+<!-- MAIN -->
+
+<div
+id="mainSection"
+class="hidden"
+>
+
+<div class="card">
+
+    <span id="currentUser"></span>
+
+    <button onclick="logout()">
+        Logout
+    </button>
+      
+<button onclick="exportReport()">
+    Export Stock
+</button>
+
+<button onclick="exportHistory()">
+    Export History
+</button>
+      
+</div>
+
+<div class="dashboard">
+      
+
+    <div class="box normal">
+
+        <h3>Normal</h3>
+
+        <h1 id="normalCount">
+            0
+        </h1>
+
+          
+          
+    </div>
+
+    <div class="box warning">
+
+        <h3>Near Expiry</h3>
+
+        <h1 id="warningCount">
+            0
+        </h1>
+
+    </div>
+
+    <div class="box expired">
+
+        <h3>Expired</h3>
+
+        <h1 id="expiredCount">
+            0
+        </h1>
+
+    </div>
+
+<div class="box expired">
+
+    <h3>Out Of Stock</h3>
+
+    <h1 id="outOfStockCount">
+        0
+    </h1>
+
+</div>
+      
+
+ <div class="card">
+
+    <h3>📤 เบิกสินค้า</h3>
+
+    <input
+        id="borrowLot"
+        placeholder="Lot No"
+    >
+
+    <input
+        id="borrowQty"
+        type="number"
+        placeholder="จำนวน"
+    >
+
+    <input
+        id="borrowBy"
+        placeholder="ผู้เบิก"
+    >
+<button onclick="addBorrowLot()">
+    เพิ่มรายการ
+</button>
+
+<table>
+
+    <thead>
+        <tr>
+            <th>Lot</th>
+            <th>Qty</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+
+    <tbody id="borrowListBody">
+    </tbody>
+
+</table>
+
+
+    <button onclick="borrowItem()">
+        เบิกสินค้าทั้งหมด
+    </button>
+       
+<div class="card">
+
+    <h3>📄 ใบเบิกสินค้า</h3>
+
+    <div id="borrowDocument">
+
+        <p>
+            เลขที่เอกสาร :
+            <span id="docNo"></span>
+        </p>
+
+        <p>
+            วันที่ :
+            <span id="docDate"></span>
+        </p>
+
+        <p>
+            ผู้เบิก :
+            <span id="docUser"></span>
+        </p>
+
+        <table
+            id="printTable"
+            style="width:100%;border-collapse:collapse;"
+        >
+
+            <thead>
+                <tr>
+                    <th>No.</th>
+                    <th>Lot</th>
+                    <th>Qty</th>
+                </tr>
+            </thead>
+
+            <tbody id="printTableBody">
+            </tbody>
+
+        </table>
+
+        <br><br>
+
+        <table
+            style="width:100%;border:none;"
+        >
+            <tr>
+
+                <td>
+                    ผู้เบิก
+                    <br><br><br>
+                    ____________________
+                </td>
+
+                <td>
+                    ผู้จ่าย
+                    <br><br><br>
+                    ____________________
+                </td>
+
+                <td>
+                    ผู้อนุมัติ
+                    <br><br><br>
+                    ____________________
+                </td>
+
+            </tr>
+        </table>
+
+    </div>
+
+    <button
+        onclick="printBorrowDocument()"
+    >
+        🖨️ พิมพ์ใบเบิก
+    </button>
+
+</div>
+       
+</div>
+         <div class="card">
+
+    <h3>📥 คืนสินค้า</h3>
+
+    <input
+        id="returnLot"
+        placeholder="Lot No"
+    >
+
+    <input
+        id="returnQty"
+        type="number"
+        placeholder="จำนวน"
+    >
+
+    <input
+        id="returnBy"
+        placeholder="ผู้คืน"
+    >
+
+    <button onclick="addReturnLot()">
+        เพิ่มรายการ
+    </button>
+
+    <table>
+
+        <thead>
+            <tr>
+                <th>Lot</th>
+                <th>Qty</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+
+        <tbody id="returnListBody">
+        </tbody>
+
+    </table>
+
+    <br>
+
+    <button onclick="returnItem()">
+        คืนสินค้าทั้งหมด
+    </button>
+
+</div>
+     
+
+      
+<div id="alertArea"></div>
+
+<div class="card">
+
+    <h3>เพิ่มสินค้า</h3>
+
+    <input id="pn" placeholder="PN">
+
+    <input id="lot" placeholder="Lot No">
+
+    <input id="storeDate" type="date">
+
+    <input id="qty" type="number" placeholder="Qty">
+
+    <input id="location" placeholder="Location">
+
+   <select id="materialType">
+    <option value="">-- Select Material Type --</option>
+    <option value="Final">Final</option>
+    <option value="Inprocess">Inprocess</option>
+    <option value="FG Tray">FG Tray</option>
+    <option value="Liner">Liner</option>
+    <option value="Hardener">Hardener</option>
+    <option value="Solvent">Solvent</option>
+    <option value="Additive">Additive</option>
+    </select>
+
+
+   
+<button id="saveBtn" onclick="saveItem()">
+    บันทึก
+</button>
+
+<button
+    id="updateBtn"
+    onclick="updateItem()"
+    style="display:none;">
+    อัปเดต
+</button>
+      
+</div>
+
+<div class="card">
+
+    <input
+        id="search"
+        placeholder="ค้นหา PN หรือ Lot"
+    >
+
+    <button onclick="searchItem()">
+        ค้นหา
+    </button>
+
+    <button onclick="displayData()">
+        แสดงทั้งหมด
+    </button>
+
+</div>
+
+<div class="table-container">
+
+    <div class="card stock-card">
+
+<table>
+
+<thead>
+
+<tr>
+<th>PN</th>
+<th>Lot</th>
+<th>Date</th>
+<th>Qty</th>
+<th>Location</th>
+<th>Material Type</th>
+<th>Status</th>
+<th>Action</th>     
+</tr>
+
+</thead>
+
+<tbody id="tableBody">
+
+</tbody>
+
+</table>
+          
+ </div>    
+      
+<div class="card history-card">
+
+    <h3>📋 ประวัติการเบิก/คืน</h3>
+
+    <table>
+
+<thead>
+    <tr>
+        <th>No.</th>
+        <th>Date</th>
+        <th>Type</th>
+        <th>PN</th>
+        <th>Lot</th>
+        <th>Qty</th>
+        <th>User</th>
+        <th>Action</th>
+    </tr>
+</thead>
+
+        <tbody id="historyTable">
+        </tbody>
+
+    </table>
+
+
+</div>
+
+</div>
+
+<script>
+
+/* USER */
+
+const users = [
+
+{
+    username:"admin",
+    password:"admin123",
+    role:"Admin"
+},
+
+{
+    username:"supervisor",
+    password:"sup123",
+    role:"Supervisor"
+},
+
+{
+    username:"user",
+    password:"user123",
+    role:"User"
+}
+
+];
+      
+let editIndex = -1;
+let borrowList = [];
+let returnList = [];
+      
+/* LOGIN */
+
+function login(){
+
+    const username =
+        document
+        .getElementById(
+            "username"
+        )
+        .value
+        .trim();
+
+    const password =
+        document
+        .getElementById(
+            "password"
+        )
+        .value
+        .trim();
+
+    const user =
+        users.find(x =>
+
+            x.username === username &&
+            x.password === password
+
+        );
+
+    if(!user){
+
+        alert(
+            "Username หรือ Password ไม่ถูกต้อง"
+        );
+
+        return;
+    }
+
+    localStorage.setItem(
+        "currentUser",
+        JSON.stringify(user)
+    );
+
+    showMain();
+
+}
+
+function logout(){
+
+    localStorage.removeItem(
+        "currentUser"
+    );
+
+    location.reload();
+
+}
+
+function showMain(){
+
+    const user =
+        JSON.parse(
+            localStorage.getItem(
+                "currentUser"
+            )
+        );
+
+    if(!user){
+        return;
+    }
+
+    document
+        .getElementById(
+            "loginSection"
+        )
+        .classList
+        .add("hidden");
+
+    document
+        .getElementById(
+            "mainSection"
+        )
+        .classList
+        .remove("hidden");
+
+    document
+        .getElementById(
+            "currentUser"
+        )
+        .innerText =
+        `${user.username}
+         (${user.role})`;
+
+    displayData();
+
+}
+
+/* STOCK */
+
+function getStock(){
+
+    return JSON.parse(
+
+        localStorage.getItem(
+            "stockData"
+        )
+
+    ) || [];
+
+}
+
+function saveItem() {
+
+    const pn = document.getElementById("pn").value.trim();
+    const lot = document.getElementById("lot").value.trim();
+    const date = document.getElementById("storeDate").value;
+    const qty = document.getElementById("qty").value;
+    const location = document.getElementById("location").value.trim();
+    const materialType = document.getElementById("materialType").value.trim();
+
+    if (!pn || !lot || !date || !qty || !location || !materialType) {
+        alert("กรุณากรอกข้อมูลให้ครบ");
+        return;
+    }
+
+    let data = getStock();
+
+    const duplicateLot = data.find(item =>
+        item.lot &&
+        item.lot.trim().toLowerCase() ===
+        lot.trim().toLowerCase()
+    );
+
+    if (duplicateLot) {
+        alert(
+            "❌ Lot No นี้มีอยู่ในระบบแล้ว\n\n" +
+            "PN : " + duplicateLot.pn +
+            "\nLocation : " + duplicateLot.location
+        );
+        return;
+    }
+
+    data.push({
+        pn,
+        lot,
+        date,
+        qty,
+        location,
+        materialType
+    });
+
+   localStorage.setItem(
+    "stockData",
+    JSON.stringify(data)
+);
+
+displayData();
+
+clearForm();
+
+alert("✅ บันทึกสำเร็จ");
+}
+
+function displayData(dataList=null){
+
+    const data =
+        dataList || getStock();
+
+    const body =
+        document.getElementById(
+            "tableBody"
+        );
+
+    body.innerHTML = "";
+
+    let normal=0;
+    let warning=0;
+    let expired=0;
+    let outOfStock = 0;
+
+    data.forEach((item, index) => {
+
+        let age = 0;
+
+        if(item.date){
+
+            age = Math.floor(
+
+                (new Date()
+                -
+                new Date(item.date))
+
+                /
+
+                (1000*60*60*24)
+
+            );
+
+        }
+
+        let status = "✅";
+
+if (Number(item.qty) <= 0) {
+
+    status = "❌ Out of Stock";
+      
+    outOfStock++;  
+
+}
+else if (age >= 365) {
+
+    status = "❌ Expired";
+
+    expired++;
+
+}
+else if (age >= 335) {
+
+    status = "⚠️ Near Expiry";
+
+    warning++;
+
+}
+else {
+
+    normal++;
+
+}
+
+       let actionButton = "";
+
+const currentUser =
+    getCurrentUser();
+
+if (
+    currentUser &&
+    currentUser.role === "Admin"
+) {
+
+    actionButton = `
+
+        <button
+            onclick="editItem(${index})">
+            แก้ไข
+        </button>
+
+        <button
+            onclick="deleteItem(${index})">
+            ลบ
+        </button>
+
+    `;
+}
+
+body.innerHTML += `
+
+<tr>
+
+    <td>${item.pn}</td>
+
+    <td>${item.lot}</td>
+
+    <td>${item.date}</td>
+
+    <td>${item.qty}</td>
+
+    <td>${item.location}</td>
+
+    <td>${item.materialType || ""}</td>
+
+    <td>${status}</td>
+
+    <td>${actionButton}</td>
+    
+
+</tr>
+
+`;
+
+    });
+
+    document
+    .getElementById(
+        "normalCount"
+    )
+    .innerText = normal;
+
+    document
+    .getElementById(
+        "warningCount"
+    )
+    .innerText = warning;
+
+    document
+    .getElementById(
+        "expiredCount"
+    )
+    .innerText = expired;
+
+    document.getElementById(
+    "outOfStockCount"
+   ).innerText = outOfStock;  
+
+}
+function editItem(index) {
+
+    const data = getStock();
+
+    const item = data[index];
+
+    document.getElementById("pn").value =
+        item.pn;
+
+    document.getElementById("lot").value =
+        item.lot;
+
+    document.getElementById("storeDate").value =
+        item.date;
+
+    document.getElementById("qty").value =
+        item.qty;
+
+    document.getElementById("location").value =
+        item.location;
+      
+    document.getElementById("materialType").value =
+        item.materialType || "";
+
+    editIndex = index;
+
+    document.getElementById("saveBtn")
+        .style.display = "none";
+
+    document.getElementById("updateBtn")
+        .style.display = "inline-block";
+}
+function updateItem() {
+
+    const data = getStock();
+
+    const lot =
+        document.getElementById("lot")
+        .value
+        .trim();
+
+    const duplicateLot =
+        data.find(
+            (item,index)=>
+
+                item.lot &&
+                item.lot.trim().toLowerCase()
+                ===
+                lot.toLowerCase()
+
+                &&
+
+                index !== editIndex
+        );
+
+    if(duplicateLot){
+
+        alert(
+            "❌ Lot นี้มีอยู่แล้ว"
+        );
+
+        return;
+    }
+
+    data[editIndex] = {
+
+        pn:
+        document.getElementById("pn").value,
+
+        lot:
+        document.getElementById("lot").value,
+
+        date:
+        document.getElementById("storeDate").value,
+
+        qty:
+        document.getElementById("qty").value,
+
+        location:
+        document.getElementById("location").value,
+
+        materialType:
+        document.getElementById("materialType").value
+
+    };
+
+    localStorage.setItem(
+        "stockData",
+        JSON.stringify(data)
+    );
+
+    editIndex = -1;
+
+    displayData();
+
+clearForm();
+
+document.getElementById("saveBtn")
+    .style.display = "inline-block";
+
+document.getElementById("updateBtn")
+    .style.display = "none";
+
+alert("✅ อัปเดตสำเร็จ");
+}
+function deleteItem(index){
+
+    if(
+        !confirm(
+            "ยืนยันการลบข้อมูล ?"
+        )
+    ){
+        return;
+    }
+
+    const data = getStock();
+
+    data.splice(index,1);
+
+    localStorage.setItem(
+        "stockData",
+        JSON.stringify(data)
+    );
+
+    displayData();
+}
+      
+function searchItem(){
+
+    const keyword =
+
+    document
+    .getElementById(
+        "search"
+    )
+    .value
+    .toLowerCase();
+
+    const result =
+
+    getStock().filter(x =>
+
+        x.pn
+        .toLowerCase()
+        .includes(keyword)
+
+        ||
+
+        x.lot
+        .toLowerCase()
+        .includes(keyword)
+
+    );
+
+    displayData(result);
+
+}
+function getCurrentUser() {
+
+    return JSON.parse(
+        localStorage.getItem(
+            "currentUser"
+        )
+    );
+
+}
+function borrowItem() {
+
+    const user =
+        document.getElementById(
+            "borrowBy"
+        ).value.trim();
+
+    if (borrowList.length === 0) {
+
+        alert(
+            "กรุณาเพิ่มรายการก่อน"
+        );
+
+        return;
+    }
+
+    let data = getStock();
+
+    // ตรวจสอบ Stock ทุก Lot ก่อน
+
+    for (const row of borrowList) {
+
+        const item =
+            data.find(
+                x => x.lot === row.lot
+            );
+
+        if (!item) {
+
+            alert(
+                "❌ ไม่พบ Lot : " +
+                row.lot
+            );
+
+            return;
+        }
+
+        if (
+            Number(row.qty) >
+            Number(item.qty)
+        ) {
+
+            alert(
+                "❌ จำนวนคงเหลือไม่พอ : " +
+                row.lot +
+                "\nคงเหลือ : " +
+                item.qty
+            );
+
+            return;
+        }
+
+    }
+
+    // ตัด Stock ทุก Lot
+
+    borrowList.forEach(row => {
+
+        const item =
+            data.find(
+                x => x.lot === row.lot
+            );
+
+        item.qty =
+            Number(item.qty)
+            -
+            Number(row.qty);
+
+    });
+
+    localStorage.setItem(
+        "stockData",
+        JSON.stringify(data)
+    );
+
+    // บันทึกประวัติ
+
+    let history =
+        JSON.parse(
+            localStorage.getItem(
+                "borrowHistory"
+            )
+        ) || [];
+
+    borrowList.forEach(row => {
+
+        const item =
+            data.find(
+                x => x.lot === row.lot
+            );
+
+        history.push({
+
+            transactionId:
+                "BOR-" + Date.now(),
+
+            type: "BORROW",
+
+            date:
+                new Date()
+                .toLocaleString(),
+
+            pn: item.pn,
+
+            lot: row.lot,
+
+            qty: row.qty,
+
+            user: user
+
+        });
+
+    });
+
+    localStorage.setItem(
+        "borrowHistory",
+        JSON.stringify(history)
+    );
+
+    // สร้างข้อมูลใบเบิก
+
+    document.getElementById(
+        "docNo"
+    ).innerText =
+        "BOR-" + Date.now();
+
+    document.getElementById(
+        "docDate"
+    ).innerText =
+        new Date().toLocaleString();
+
+    document.getElementById(
+        "docUser"
+    ).innerText =
+        user;
+
+    const printTableBody =
+        document.getElementById(
+            "printTableBody"
+        );
+
+    if (printTableBody) {
+
+        printTableBody.innerHTML = "";
+
+        borrowList.forEach(
+            (row,index)=>{
+
+                printTableBody.innerHTML += `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${row.lot}</td>
+                    <td>${row.qty}</td>
+                </tr>
+                `;
+
+            }
+        );
+
+    }
+
+    displayData();
+    displayHistory();
+
+    // ล้างรายการเบิกทั้งหมด
+
+    borrowList = [];
+
+    renderBorrowList();
+
+    document.getElementById(
+        "borrowBy"
+    ).value = "";
+
+    alert(
+        "✅ เบิกสินค้าทั้งหมดสำเร็จ"
+    );
+
+}
+function returnItem() {
+
+    const user =
+        document.getElementById(
+            "returnBy"
+        ).value.trim();
+
+    if(returnList.length === 0){
+
+        alert(
+            "กรุณาเพิ่มรายการคืนก่อน"
+        );
+
+        return;
+    }
+
+    let data = getStock();
+
+    let history =
+        JSON.parse(
+            localStorage.getItem(
+                "borrowHistory"
+            )
+        ) || [];
+
+    returnList.forEach(row => {
+
+        const item =
+            data.find(
+                x => x.lot === row.lot
+            );
+
+        if(item){
+
+            item.qty =
+                Number(item.qty)
+                +
+                Number(row.qty);
+
+        }
+
+        history.push({
+
+            transactionId:
+                "RET-" + Date.now(),
+
+            type: "RETURN",
+
+            date:
+                new Date()
+                    .toLocaleString(),
+
+            pn:
+                item ? item.pn : "",
+
+            lot:
+                row.lot,
+
+            qty:
+                row.qty,
+
+            user:
+                user
+
+        });
+
+    });
+
+    localStorage.setItem(
+        "stockData",
+        JSON.stringify(data)
+    );
+
+    localStorage.setItem(
+        "borrowHistory",
+        JSON.stringify(history)
+    );
+
+    displayData();
+    displayHistory();
+
+    returnList = [];
+
+    renderReturnList();
+
+    document.getElementById(
+        "returnBy"
+    ).value = "";
+
+    alert(
+        "✅ คืนสินค้าทั้งหมดเรียบร้อย"
+    );
+
+}
+function exportReport() {
+
+    const data = getStock();
+
+   let csv =
+    "PN,Lot,Date,Qty,Location,Material Type\n";
+
+    data.forEach(item => {
+
+        csv +=
+    item.pn + "," +
+    item.lot + "," +
+    item.date + "," +
+    item.qty + "," +
+    item.location + "," +
+    (item.materialType || "") +
+    "\n";
+
+    });
+
+    const blob =
+        new Blob(
+            [csv],
+            {
+                type:
+                "text/csv;charset=utf-8;"
+            }
+        );
+
+    const link =
+        document.createElement("a");
+
+    link.href =
+        URL.createObjectURL(blob);
+
+    link.download =
+        "Stock_Report.csv";
+
+    link.click();
+
+}
+function exportHistory() {
+
+    const history =
+        JSON.parse(
+            localStorage.getItem(
+                "borrowHistory"
+            )
+        ) || [];
+
+    let csv =
+        "Date,Type,PN,Lot,Qty,User\n";
+
+    history.forEach(item => {
+
+        csv +=
+            item.date + "," +
+            item.type + "," +
+            item.pn + "," +
+            item.lot + "," +
+            item.qty + "," +
+            item.user +
+            "\n";
+
+    });
+
+    const blob =
+        new Blob(
+            [csv],
+            {
+                type:
+                "text/csv;charset=utf-8;"
+            }
+        );
+
+    const link =
+        document.createElement("a");
+
+    link.href =
+        URL.createObjectURL(blob);
+
+    link.download =
+        "Borrow_History.csv";
+
+    link.click();
+
+}
+ function clearForm() {
+
+    document.getElementById("pn").value = "";
+    document.getElementById("lot").value = "";
+    document.getElementById("storeDate").value = "";
+    document.getElementById("qty").value = "";
+    document.getElementById("location").value = "";
+    document.getElementById("materialType").value = "";
+
+}   
+function clearBorrowForm() {
+
+    document.getElementById(
+        "borrowLot"
+    ).value = "";
+
+    document.getElementById(
+        "borrowQty"
+    ).value = "";
+
+    document.getElementById(
+        "borrowBy"
+    ).value = "";
+
+} 
+function clearReturnForm() {
+
+    document.getElementById(
+        "returnLot"
+    ).value = "";
+
+    document.getElementById(
+        "returnQty"
+    ).value = "";
+
+    document.getElementById(
+        "returnBy"
+    ).value = "";
+
+}  
+function displayHistory() {
+
+    const history =
+        JSON.parse(
+            localStorage.getItem(
+                "borrowHistory"
+            )
+        ) || [];
+
+    const table =
+        document.getElementById(
+            "historyTable"
+        );
+
+    if (!table) return;
+
+    table.innerHTML = "";
+
+const latestHistory =
+    history
+        .slice(-10)
+        .reverse();
+
+latestHistory.forEach((item,index) => {
+
+    let rowColor = "";
+
+    if(item.type === "BORROW"){
+
+        rowColor = "#ffe5e5";
+
+    }else if(item.type === "RETURN"){
+
+        rowColor = "#e5ffe5";
+
+    }
+
+    table.innerHTML += `
+<tr style="background:${rowColor}">
+    <td>${index + 1}</td>
+    <td>${item.date}</td>
+    <td>
+        ${
+            item.type === "BORROW"
+            ? "🔴 BORROW"
+            : "🟢 RETURN"
+        }
+    </td>
+    <td>${item.pn}</td>
+    <td>${item.lot}</td>
+    <td>${item.qty}</td>
+    <td>${item.user}</td>
+
+    <td>
+        <button
+            onclick="deleteHistory(${index})">
+            ลบ
+        </button>
+    </td>
+</tr>
+`;
+});
+
+}
+function deleteHistory(index){
+
+    let history =
+        JSON.parse(
+            localStorage.getItem(
+                "borrowHistory"
+            )
+        ) || [];
+
+    const currentUser =
+        getCurrentUser();
+
+    if(
+        !currentUser ||
+        currentUser.role !== "Admin"
+    ){
+        alert(
+            "❌ เฉพาะ Admin เท่านั้น"
+        );
+        return;
+    }
+
+    if(
+        !confirm(
+            "ยืนยันการลบประวัติ ?"
+        )
+    ){
+        return;
+    }
+
+    history.splice(index,1);
+
+    localStorage.setItem(
+        "borrowHistory",
+        JSON.stringify(history)
+    );
+
+    displayHistory();
+
+}
+function addBorrowLot(){
+
+    const lot =
+        document.getElementById(
+            "borrowLot"
+        ).value.trim();
+
+    const qty =
+        Number(
+            document.getElementById(
+                "borrowQty"
+            ).value
+        );
+
+    if(!lot || qty <= 0){
+
+        alert(
+            "กรุณากรอก Lot และ Qty"
+        );
+
+        return;
+    }
+
+    borrowList.push({
+
+        lot: lot,
+
+        qty: qty
+
+    });
+
+    renderBorrowList();
+
+    document.getElementById(
+        "borrowLot"
+    ).value = "";
+
+    document.getElementById(
+        "borrowQty"
+    ).value = "";
+
+}
+function renderBorrowList(){
+
+    const body =
+        document.getElementById(
+            "borrowListBody"
+        );
+
+    body.innerHTML = "";
+
+    borrowList.forEach((item,index)=>{
+
+        body.innerHTML += `
+        <tr>
+            <td>${item.lot}</td>
+
+            <td>${item.qty}</td>
+
+            <td>
+                <button
+                    onclick="removeBorrowItem(${index})">
+                    ลบ
+                </button>
+            </td>
+        </tr>
+        `;
+
+    });
+
+}
+function removeBorrowItem(index){
+
+    borrowList.splice(index,1);
+
+    renderBorrowList();
+
+}
+function addReturnLot(){
+
+    const lot =
+        document.getElementById(
+            "returnLot"
+        ).value.trim();
+
+    const qty =
+        Number(
+            document.getElementById(
+                "returnQty"
+            ).value
+        );
+
+    if(!lot || qty <= 0){
+
+        alert(
+            "กรุณากรอก Lot และ Qty"
+        );
+
+        return;
+    }
+
+    const duplicate =
+        returnList.find(
+            item => item.lot === lot
+        );
+
+    if(duplicate){
+
+        alert(
+            "Lot นี้อยู่ในรายการคืนแล้ว"
+        );
+
+        return;
+    }
+
+    returnList.push({
+
+        lot: lot,
+        qty: qty
+
+    });
+
+    renderReturnList();
+
+    document.getElementById(
+        "returnLot"
+    ).value = "";
+
+    document.getElementById(
+        "returnQty"
+    ).value = "";
+
+}
+function renderReturnList(){
+
+    const body =
+        document.getElementById(
+            "returnListBody"
+        );
+
+    body.innerHTML = "";
+
+    returnList.forEach((item,index)=>{
+
+        body.innerHTML += `
+        <tr>
+
+            <td>${item.lot}</td>
+
+            <td>${item.qty}</td>
+
+            <td>
+                <button
+                    onclick="removeReturnItem(${index})">
+                    ลบ
+                </button>
+            </td>
+
+        </tr>
+        `;
+
+    });
+
+}
+function removeReturnItem(index){
+
+    returnList.splice(index,1);
+
+    renderReturnList();
+
+}
+function printBorrowDocument() {
+
+    alert("Print Start");
+    const documentArea =
+        document.getElementById(
+            "borrowDocument"
+        );
+
+    if (!documentArea) {
+
+        alert("ไม่พบข้อมูลใบเบิก");
+
+        return;
+    }
+
+    const printWindow =
+        window.open(
+            "",
+            "_blank",
+            "width=1000,height=700"
+        );
+
+    printWindow.document.write(`
+        <html>
+        <head>
+            <title>ใบเบิกสินค้า</title>
+
+            <style>
+                body{
+                    font-family:Arial,sans-serif;
+                    padding:20px;
+                }
+
+                table{
+                    width:100%;
+                    border-collapse:collapse;
+                }
+
+                th,td{
+                    border:1px solid #000;
+                    padding:8px;
+                    text-align:center;
+                }
+            </style>
+        </head>
+
+        <body>
+
+            <h2>
+                Solstice Advanced Materials
+            </h2>
+
+            <h3>
+                ใบเบิกสินค้า
+            </h3>
+
+            ${documentArea.innerHTML}
+
+        </body>
+        </html>
+    `);
+
+    printWindow.document.close();
+
+    printWindow.focus();
+
+    setTimeout(() => {
+
+        printWindow.print();
+
+    }, 500);
+
+}
+      
+window.onload = function(){
+
+    const user =
+    localStorage.getItem(
+        "currentUser"
+    );
+
+    if(user){
+
+        showMain();
+        displayHistory();  
+
+    }
+      
+};
+
+</script>
+
+</body>
+</html>
