@@ -130,34 +130,26 @@ opacity:1;
 <div class="card">
 
 <div class="score">
-🏆 คะแนนรวม :
+🏆 Total Score :
 <span id="score">0</span>
 </div>
 
 <div class="timer">
-⏱️ <span id="timer">90</span> วินาที
+⏱️ <span id="timer">90</span> Seconds
 </div>
 
-<hr>
-
-<h2 id="caseTitle"></h2>
-
-<div id="slots"></div>
-
-<h3>เลือก Why แล้วแตะช่องวาง</h3>
-
-<div id="pool"></div>
+<h3>Select a Why statement and click a slot</h3>
 
 <button class="check" onclick="checkAnswer()">
-✅ ตรวจคำตอบ
+✅ Check Answer
 </button>
 
 <button class="reset" onclick="clearAnswers()">
-🗑 ล้างคำตอบ
+🗑 Clear Answers
 </button>
 
 <button class="next" onclick="newCase()">
-🔄 สุ่มโจทย์ใหม่
+🔄 New Challenge
 </button>
 
 <div id="result"></div>
@@ -168,69 +160,62 @@ opacity:1;
 <script>
 
 const cases=[
-
 {
-title:"รอยบุบที่ด้านบนของชิ้นงาน",
-rootCause:"พนักงานติดตั้งผ้าเช็ดไม่เป็นไปตามมาตรฐาน ทำให้กำจัดสิ่งแปลกปลอมได้ไม่สมบูรณ์ ส่งผลให้เกิดรอยบุบบนชิ้นงาน",
+title:"Dent on Product Surface",
+rootCause:"The operator installed the wiping cloth incorrectly, preventing complete removal of foreign particles and causing dents on the product surface.",
 whys:[
-"พบรอยบุบด้านบนชิ้นงาน",
-"มีสิ่งแปลกปลอมบนผิวแม่พิมพ์ขณะขึ้นรูป",
-"ผ้าเช็ดไม่สามารถกำจัดสิ่งแปลกปลอมบนผิวทองแดงได้อย่างมีประสิทธิภาพ",
-"ติดตั้งผ้าเช็ดผิวทองแดงไม่ถูกต้อง",
-"พนักงานไม่เข้าใจถึงความสำคัญของการยึดผ้าเช็ดให้แน่นตามข้อกำหนด ส่งผลต่อประสิทธิภาพในการกำจัดสิ่งแปลกปลอม"
+"Dent found on the product surface",
+"Foreign particles were present on the mold surface during forming",
+"The wiping cloth could not effectively remove foreign particles from the copper surface",
+"The copper wiping cloth was installed incorrectly",
+"The operator did not understand the importance of securing the cloth according to the standard, reducing contamination removal effectiveness"
 ]
 },
-
 {
-title:"พบคราบสกปรกบนชิ้นงาน",
-rootCause:"มาตรฐานการควบคุมความสะอาดไม่ครอบคลุมความเสี่ยงด้านการปนเปื้อนระหว่างการปฏิบัติงาน",
+title:"Contamination Found on Product",
+rootCause:"The cleanliness control standard did not adequately address contamination risks during operation.",
 whys:[
-"พบคราบสกปรกบนชิ้นงาน",
-"มีสิ่งปนเปื้อนบนผิวชิ้นงาน",
-"ชิ้นงานสัมผัสกับถุงมือหรือพื้นผิวที่มีคราบ",
-"การควบคุมความสะอาดระหว่างการผลิตไม่เพียงพอ",
-"ไม่มีมาตรฐานการควบคุมการปนเปื้อนที่ชัดเจน"
+"Contamination was found on the product",
+"Contaminants were present on the product surface",
+"The product contacted contaminated gloves or surfaces",
+"Cleanliness control during production was insufficient",
+"There was no clear contamination control standard"
 ]
 },
-
 {
-title:"พบการติดลาเบลผิด",
-rootCause:"ไม่มีการควบคุมการแยกลาเบล ทำให้เกิดการหยิบใช้งานผิดและติดลาเบล ไม่ถูกต้อง",
+title:"Incorrect Label Applied",
+rootCause:"There was no label segregation control, causing operators to pick the wrong labels and apply them incorrectly.",
 whys:[
-"พบการติดลาเบลผิด",
-"มีการนำลาเบล ต่างชนิดมาปะปนกัน",
-"ลาเบลไม่ได้ถูกแยกเก็บตามประเภทอย่างชัดเจน",
-"ไม่มีวิธีการควบคุมการแยกลาเบลที่เป็นมาตรฐาน",
-"ไม่มีข้อกำหนดหรือระบบควบคุมการแยกลาเบลในพื้นที่ปฏิบัติงาน"
+"Incorrect label was applied",
+"Different label types were mixed together",
+"Labels were not clearly separated by category",
+"There was no standard method for label segregation",
+"There were no requirements or controls for label segregation in the work area"
 ]
 },
-
 {
-title:"ขนาดชิ้นงานเกินสเปค",
-rootCause:"เครื่องมือวัดไม่ได้สอลเทียบ ตามกำหนด ทำให้ผลการวัดคลาดเคลื่อนและชิ้นงานขนาดเกินสเปคถูกส่งต่อไปยังกระบวนการถัดไป",
+title:"Product Dimension Out of Specification",
+rootCause:"The measuring instrument was not calibrated as scheduled, resulting in inaccurate measurements and oversized products moving to the next process.",
 whys:[
-"พบขนาดชิ้นงานเกินสเปค",
-"ค่าที่วัดได้ไม่สะท้อนขนาดจริงของชิ้นงาน",
-"เครื่องมือวัดให้ค่าคลาดเคลื่อน",
-"เครื่องมือวัดไม่ได้ผ่านการสอบเทียบ ตามกำหนด",
-"ไม่มีการติดตามและควบคุมสถานะ สอบเทียบอย่างมีประสิทธิภาพ"
+"Product dimension exceeded specification",
+"The measured value did not reflect the actual product dimension",
+"The measuring instrument provided inaccurate readings",
+"The measuring instrument was not calibrated according to schedule",
+"There was no effective calibration tracking and control system"
 ]
 },
-
 {
-title:"ทองแดงเป็นสนิม",
-rootCause:"ทองแดงหมดอายุการจัดเก็บ ทำให้เกิดสนิมบนวัตถุดิบ",
+title:"Copper Material Corrosion",
+rootCause:"The copper material exceeded its storage life, causing corrosion on the raw material.",
 whys:[
-"พบทองแดงเป็นสนิม",
-"ทองแดงถูกนำมาใช้งานหลังหมดอายุการจัดเก็บ",
-"ไม่มีการตรวจสอบอายุการจัดเก็บก่อนนำมาใช้งาน",
-"ระบบควบคุม FIFO/FEFO ดำเนินการไม่ครบถ้วน",
-"ไม่มีการติดตามและแจ้งเตือนวัตถุดิบใกล้หมดอายุอย่างเป็นระบบ"
+"Copper corrosion was found",
+"The copper was used after its storage life expired",
+"The storage life was not checked before use",
+"The FIFO/FEFO control process was not fully implemented",
+"There was no systematic monitoring and alert system for materials approaching expiration"
 ]
 }
-
 ];
-
 let score=0;
 let totalPlayed=0;
 let selectedItem=null;
@@ -285,19 +270,19 @@ document.getElementById("result").innerHTML=
 <div class="success">
 
 <h2 class="wrong">
-⏰ หมดเวลา
+⏰ Time's Up
 </h2>
 
 <hr>
 
-<h2>🏆 สรุปผลการแข่งขัน</h2>
+<h2>🏆 Competition Summary</h2>
 
-<p>คะแนนรวม : <b>${score}</b></p>
+<p>Total Score : <b>${score}</b></p>
 
-<p>จำนวนเคสที่เล่น : <b>${totalPlayed}</b></p>
+<p>Cases Played : <b>${totalPlayed}</b></p>
 
 <p>
-Root Cause ล่าสุด :
+Latest Root Cause :
 <br><br>
 <b>${currentCase.rootCause}</b>
 </p>
@@ -451,7 +436,7 @@ document.getElementById("result").innerHTML=
 </h2>
 
 <h1>
-🏆 +10 คะแนน
+🏆 +10 Points
 </h1>
 
 <hr>
@@ -467,11 +452,11 @@ else{
 document.getElementById("result").innerHTML=
 `
 <p class="wrong">
-✅ ถูก ${correct}/5
+✅ Correct ${correct}/5
 </p>
 
 <p>
-ได้รับ ${correct*2} คะแนน
+You earned ${correct*2} points
 </p>
 
 <hr>
